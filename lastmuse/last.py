@@ -72,13 +72,3 @@ def vimeo_url_from_track(track):
     except KeyError:
         raw_vid = j[u'request'][u'files'][u'h264'][u'sd'][u'url'] 
     return raw_vid
-
-
-tracklist = fetch_tracks()
-i = 1
-
-for track in tracklist:
-    print "[%d] %s" % (i, track)
-    video = vimeo_url_from_track(track)
-    print "%s\n" % video
-    i += 1
