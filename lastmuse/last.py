@@ -4,7 +4,7 @@ from random import random
 import requests
 from lxml import html
 
-def gen_headers():
+def _gen_headers():
     agents = [("Mozilla/5.0 (compatible; MSIE 10.6; Windows NT 6.1; Trident/5.0;" 
                    "InfoPath.2; SLCC1; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; "
                    ".NET CLR 2.0.50727) 3gpp-gba UNTRUSTED/1.0"),           
@@ -38,22 +38,6 @@ def fetch_tracks():
         tracklist.append(song)
     return tracklist
 
-def yt_url_from_track(track):
-    url = track.replace(u' \u2013 ', '/_/')
-    url = url.replace('+', '%2B')
-    url = url.replace('?', '%3F')
-    url = url.replace(' ', '+')
-    
-    music_r = requests.get("http://www.last.fm/music/" + url)
-    
-    music_tree = html.fromstring(music_r.text)
-    video_xpath = ("/html/body/div[2]/article/div[1]/div[1]/section[4]/div/"
-                    "div/div[1]/object/param[1]/@value")
-
-    url = music_tree.xpath(video_xpath)
-    video_id = ur
-    return url
-
 def vimeo_url_from_track(track):
     url = track.replace(u' \u2013 ', ' ')
     url = url.replace('+', '%2B')
@@ -62,7 +46,7 @@ def vimeo_url_from_track(track):
     url = url.replace('!', '')
     url = url.lower()
     
-    head = gen_headers()
+    head = _gen_headers()
 
     search_req = requests.get("http://vimeo.com/search?q=" + url, headers=head)
     if search_req.status_code != 200:
@@ -89,41 +73,6 @@ def vimeo_url_from_track(track):
         raw_vid = j[u'request'][u'files'][u'h264'][u'sd'][u'url'] 
     return raw_vid
 
-def yt_search(search_str):
-   
-    qs = ''.join(i if ord(i) < 128 else '' for i in search_str)
-    qs.replace('+', '%2B');
-    qs.replace(' ', '+'); 
-
-    payload = {
-        'search_query': qs
-    }
-    
-    agent = ("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:31.0)" 
-             "Gecko/20100101 Firefox/31.0") 
-    header = {
-        'User-Agent': agent
-    }
-    search_req = requests.get("http://youtube.com/results", 
-                                params=payload, 
-                                headers=header);
-
-    results_tree = html.fromstring(search_req.text)
-    for i in range(1, 11):
-
-        result_xpath = ("/html/body/div[2]/div[3]/div/div[5]/div/div/div/"
-                        "div[1]/div/div[2]/div[2]/ol/li/ol/li[" + str(i) + "]"
-                        "/div/div[2]")
-        result_title = results_tree.xpath(result_xpath + "/h3/a/text()")[0]
-        result_desc = str(results_tree.xpath(result_xpath + 
-                                         "/div[1]/ul/li[1]/b/a/text()"))
-        
-        if "VEVO" not in result_desc and "Mix" not in result_title:
-            result_href = results_tree.xpath(result_xpath + "/h3/a/@href")[0]
-            code = result_href.split('=', 1)[1]
-            return code
-
-    return None
 
 tracklist = fetch_tracks()
 i = 1
