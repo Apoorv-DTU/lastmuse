@@ -16,5 +16,12 @@ if len(sys.argv) < 2:
 
 else:
     index = int(sys.argv[1]) - 1
+    
+    #check if the argument is in bounds
+    if index < 0: 
+        index = 1
+    elif index > 19:
+        index = 19
+
     url = last.vimeo_url_from_track(tracks[index])
-    print "[%d] %s: %s" % (index, tracks[index], url)
+    print "[%d] %s: %s" % (index+1, tracks[index], url)

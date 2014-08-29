@@ -54,7 +54,7 @@ def vimeo_url_from_track(track):
         
     res_tree = html.fromstring(search_req.text)
     xpath = ("/html/body/div[1]/div[2]/div[2]/div/div[1]/div[1]/"
-             "div[3]/ol/li[1]/a/@href")
+             "div[3]/ol/li[2]/a/@href")
     
     url = "http://vimeo.com" + res_tree.xpath(xpath)[0]
 
