@@ -16,7 +16,7 @@ tracks = last.fetch_tracks()
 if len(sys.argv) < 2:
 
     for track in enumerate(tracks):
-        print("[{}] {}".format(*track))
+        print("[{}] {}".format(track[0]+1, track[1]))
 else:
     index = int(sys.argv[1]) - 1
 
