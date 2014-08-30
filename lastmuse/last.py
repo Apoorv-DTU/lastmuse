@@ -25,8 +25,7 @@ def _gen_headers():
               "AppleWebKit/537.13+ (KHTML, like Gecko) "
               "Version/5.1.7 Safari/534.57.2"]
 
-    index = int(random() * 100000 % 4)
-    return {'User-Agent': agents[index]}
+    return {'User-Agent': agents[int(random() * 100000 % 4)]}
 
 
 def fetch_tracks():
@@ -34,13 +33,12 @@ def fetch_tracks():
     fm_r = requests.get(url)
     fm_tree = html.fromstring(fm_r.text)
 
-    tracklist = []
-    for srl in range(1, 21):
-        if srl is 1:
-            track_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div[1]/div/ol/"
-                           "li[1]/div/div/a[1]/h4/span[2]/text()")
-        else:
-            track_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div[1]/div/ol/"
+    tracklist = [fm_tree.xpath("/html/body/div[1]/div/div[6]/div[1]/"
+                               "div[1]/div/ol/li[1]/div/div/a[1]/h4/"
+                               "span[2]/text()")]
+
+    for srl in range(2, 21):
+        track_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div[1]/div/ol/"
                            "li[" + str(srl) + "]/div/div/a/h4/span[2]/text()")
 
         song = fm_tree.xpath(track_xpath)[0]
