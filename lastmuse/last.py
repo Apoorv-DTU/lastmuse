@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env/python3
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -7,6 +7,80 @@ from random import random
 import requests
 from lxml import html
 
+
+class Track(object):
+
+    def __init__(self, srl, name):
+        self.srl = srl
+        self.name = name
+        self.url = None
+        self.image = None
+        self.qs = _prepare_qs(self.name)
+        
+        self._html = None
+
+    def gen_url(self, force=False):
+
+        if self.url is not None:
+            if not force:
+                return
+            else:
+                pass
+        else:
+            pass
+
+        head = _gen_headers()
+        search_req = requests.get("http://vimeo.com/search?q=" + self.qs,
+                                  headers=head)
+
+        if search_req.status_code != 200:
+            print("Error {:d}: {:s} from {:s}".format(search_req.status_code,
+                                                      search_req.url,
+                                                      head['User-Agent']))
+
+        res_tree = html.fromstring(search_req.text)
+        xpath = ("/html/body/div[1]/div[2]/div[2]/div/div[1]/div[1]/"
+                 "div[3]/ol/li[2]/a/@href")
+
+        url = "http://vimeo.com" + res_tree.xpath(xpath)[0]
+
+        vid_req = requests.get(url, headers=head)
+        vid_tree = html.fromstring(vid_req.text)
+
+        vid_xpath = ("/html/body/div[1]/div[2]/div[2]/div/div[1]/"
+                     "div[1]/div/div/@data-config-url")
+
+        vid_url = vid_tree.xpath(vid_xpath)[0]
+        json_r = requests.get(vid_url, headers=head)
+        j = json_r.json()
+
+        try:
+            raw_vid = j['request']['files']['h264']['hd']['url']
+        except KeyError:
+            raw_vid = j['request']['files']['h264']['sd']['url']
+
+        self.url = raw_vid
+
+    def gen_image(self, force):
+        
+        if self.image is not None:
+            if not force:
+                return
+            else:
+                pass
+        else:
+            pass
+
+        if srl is 1:
+            img_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div"
+                         "[1]/div/ol/li[1]/div/div/a[1]/div/div/img/@src")
+        else:
+            img_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div[1]"
+                         "/div/ol/li[" + srl + "]/div/div/a/img/@src")
+
+        img_url = self._html.xpath(img_xpath)
+        img_request = requests.get(img_url)
+        self.image = img_request
 
 def _gen_headers():
     agents = ["Mozilla/5.0 (compatible; MSIE 10.6; Windows NT 6.1; "
@@ -33,53 +107,24 @@ def fetch_tracks():
     fm_r = requests.get(url)
     fm_tree = html.fromstring(fm_r.text)
 
-    tracklist = [fm_tree.xpath("/html/body/div[1]/div/div[6]/div[1]/"
-                               "div[1]/div/ol/li[1]/div/div/a[1]/h4/"
-                               "span[2]/text()")]
+    tracklist = [Track(1, fm_tree.xpath("/html/body/div[1]/div/div[6]/div[1]/"
+                                     "div[1]/div/ol/li[1]/div/div/a[1]/h4/"
+                                     "span[2]/text()")[0])]
 
     for srl in range(2, 21):
         track_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div[1]/div/ol/"
-                           "li[" + str(srl) + "]/div/div/a/h4/span[2]/text()")
+                       "li[" + str(srl) + "]/div/div/a/h4/span[2]/text()")
 
         song = fm_tree.xpath(track_xpath)[0]
-        tracklist.append(song)
+        tracklist.append(Track(srl, song))
     return tracklist
 
 
-def vimeo_url_from_track(track):
-    url = track.replace(' \u2013 ', ' ')
+def _prepare_qs(string):
+    url = string.replace(' \u2013 ', ' ')
     url = url.replace('+', '%2B')
     url = url.replace('?', '%3F')
     url = url.replace(' ', '+')
     url = url.replace('!', '')
     url = url.lower()
-
-    head = _gen_headers()
-
-    search_req = requests.get("http://vimeo.com/search?q=" + url, headers=head)
-    if search_req.status_code != 200:
-        print("Error {:d}: {:s} from {:s}".format(search_req.status_code,
-                                                  search_req.url,
-                                                  head['User-Agent']))
-
-    res_tree = html.fromstring(search_req.text)
-    xpath = ("/html/body/div[1]/div[2]/div[2]/div/div[1]/div[1]/"
-             "div[3]/ol/li[2]/a/@href")
-
-    url = "http://vimeo.com" + res_tree.xpath(xpath)[0]
-
-    vid_req = requests.get(url, headers=head)
-    vid_tree = html.fromstring(vid_req.text)
-
-    vid_xpath = ("/html/body/div[1]/div[2]/div[2]/div/div[1]/"
-                 "div[1]/div/div/@data-config-url")
-
-    vid_url = vid_tree.xpath(vid_xpath)[0]
-    json_r = requests.get(vid_url, headers=head)
-    j = json_r.json()
-
-    try:
-        raw_vid = j['request']['files']['h264']['hd']['url']
-    except KeyError:
-        raw_vid = j['request']['files']['h264']['sd']['url']
-    return raw_vid
+    return url

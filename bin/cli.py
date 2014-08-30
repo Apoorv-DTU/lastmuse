@@ -16,7 +16,7 @@ tracks = last.fetch_tracks()
 if len(sys.argv) < 2:
 
     for track in enumerate(tracks):
-        print("[{}] {}".format(track[0]+1, track[1]))
+        print("[{}] {}".format(track[1].srl, track[1].name))
 else:
     index = int(sys.argv[1]) - 1
 
@@ -26,5 +26,7 @@ else:
     elif index > 19:
         index = 19
 
-    url = last.vimeo_url_from_track(tracks[index])
-    print("[{:d}] {:s}: {:s}".format(index+1, tracks[index], url))
+    tracks[index].gen_url()
+    print("[{}] {}: {}".format(tracks[index].srl, 
+                               tracks[index].name, 
+                               tracks[index].url))
