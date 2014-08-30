@@ -16,6 +16,7 @@ TODO
 ----
 Most important thing first
 
-* A mechanism to fetch lyrics
 * A GUI frontend
+* Write Tests
 * Reduce Dependencies
+* Create Website (GH page preferably)

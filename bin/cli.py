@@ -27,6 +27,9 @@ else:
         index = 19
 
     tracks[index].gen_url()
-    print("[{}] {}: {}".format(tracks[index].srl, 
-                               tracks[index].name, 
+    tracks[index].gen_lyrics()
+    print("[{}] {}: {}".format(tracks[index].srl,
+                               tracks[index].name,
                                tracks[index].url))
+    print("--------")
+    print(tracks[index].lyrics)

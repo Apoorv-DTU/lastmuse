@@ -1,4 +1,4 @@
-#!/usr/bin/env/python3
+#!/usr/bin/python3
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -15,8 +15,9 @@ class Track(object):
         self.name = name
         self.url = None
         self.image = None
-        self.qs = _prepare_qs(self.name)
-        
+        self.lyrics = None
+
+        self._qs = _prepare_qs(self.name)
         self._html = None
 
     def gen_url(self, force=False):
@@ -30,7 +31,7 @@ class Track(object):
             pass
 
         head = _gen_headers()
-        search_req = requests.get("http://vimeo.com/search?q=" + self.qs,
+        search_req = requests.get("http://vimeo.com/search?q=" + self._qs,
                                   headers=head)
 
         if search_req.status_code != 200:
@@ -61,8 +62,8 @@ class Track(object):
 
         self.url = raw_vid
 
-    def gen_image(self, force):
-        
+    def gen_image(self, force=False):
+
         if self.image is not None:
             if not force:
                 return
@@ -81,6 +82,37 @@ class Track(object):
         img_url = self._html.xpath(img_xpath)
         img_request = requests.get(img_url)
         self.image = img_request
+
+    def gen_lyrics(self, force=False):
+
+        if self.lyrics is not None:
+            if not force:
+                return
+            else:
+                pass
+        else:
+            pass
+
+        url = self.name.split(' \u2013 ')
+        url = '/'.join(url)
+        url = url.replace(' ', '')
+        url = url.replace('&', '')
+        url = url.replace('?', '')
+        url = url.replace('!', '')
+        url = url.lower()
+        if "(" in url:
+            url = url.split('(')[0]
+
+        lyr_r = requests.get("http://www.azlyrics.com/lyrics/" + url + ".html")
+        lyr_tree = html.fromstring(lyr_r.text)
+        lyrics_list = lyr_tree.xpath("/html/body/div[2]/div[3]/text()")
+
+        lyrics = ""
+        for clause in lyrics_list:
+            lyrics += clause
+
+        self.lyrics = lyrics
+
 
 def _gen_headers():
     agents = ["Mozilla/5.0 (compatible; MSIE 10.6; Windows NT 6.1; "
@@ -108,8 +140,8 @@ def fetch_tracks():
     fm_tree = html.fromstring(fm_r.text)
 
     tracklist = [Track(1, fm_tree.xpath("/html/body/div[1]/div/div[6]/div[1]/"
-                                     "div[1]/div/ol/li[1]/div/div/a[1]/h4/"
-                                     "span[2]/text()")[0])]
+                                        "div[1]/div/ol/li[1]/div/div/a[1]/h4/"
+                                        "span[2]/text()")[0])]
 
     for srl in range(2, 21):
         track_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div[1]/div/ol/"
