@@ -159,4 +159,5 @@ def _prepare_qs(string):
     url = url.replace(' ', '+')
     url = url.replace('!', '')
     url = url.lower()
+    url = url.split('(')[0]
     return url
