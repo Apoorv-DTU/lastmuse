@@ -17,6 +17,5 @@ TODO
 Most important thing first
 
 * A mechanism to fetch lyrics
-* A mechanism to fetch the image
 * A GUI frontend
 * Reduce Dependencies
