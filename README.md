@@ -10,7 +10,7 @@ Usage
 To print the list of top tracks
 
 `./bin/cli.py <srl no.>`
-To print the URL of the track at the serial number
+To print the URL of the track at the serial number and open it in the browser
 
 TODO
 ----
