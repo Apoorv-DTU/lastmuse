@@ -10,6 +10,8 @@ script_dir = os.getcwd()
 script_dir = script_dir.replace('/bin', '')
 sys.path.append(script_dir)
 
+import webbrowser
+
 from lastmuse import last
 tracks = last.fetch_tracks()
 
@@ -33,3 +35,4 @@ else:
                                tracks[index].url))
     print("--------")
     print(tracks[index].lyrics)
+    webbrowser.open(tracks[index].url)
