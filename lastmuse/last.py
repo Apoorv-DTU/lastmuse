@@ -34,14 +34,19 @@ class Track(object):
         search_req = requests.get("http://vimeo.com/search?q=" + self._qs,
                                   headers=head)
 
-        if search_req.status_code != 200:
-            print("Error {:d}: {:s} from {:s}".format(search_req.status_code,
-                                                      search_req.url,
-                                                      head['User-Agent']))
-
         res_tree = html.fromstring(search_req.text)
         xpath = ("/html/body/div[1]/div[2]/div[2]/div/div[1]/div[1]/"
-                 "div[3]/ol/li[2]/a/@href")
+                 "div[3]/ol")
+
+        t1 = res_tree.xpath(xpath + "/li[1]/a/@title")[0]
+        t2 = res_tree.xpath(xpath + "/li[2]/a/@title")[0]
+
+        result = _select(self.name.split('(')[0], t1, t2)
+
+        if result is 1:
+            xpath += "/li[1]/a/@href"
+        else:
+            xpath += "/li[2]/a/@href"
 
         url = "http://vimeo.com" + res_tree.xpath(xpath)[0]
 
@@ -161,3 +166,17 @@ def _prepare_qs(string):
     url = url.lower()
     url = url.split('(')[0]
     return url
+
+def _select(main, opt1, opt2):
+
+    l_main = len(main)
+    l_opt1 = len(opt1)
+    l_opt2 = len(opt2)
+
+    l_opt1 -= l_main
+    l_opt2 -= l_main
+
+    if abs(l_opt2) >= abs(l_opt1):
+        return 1
+    else:
+        return 2
