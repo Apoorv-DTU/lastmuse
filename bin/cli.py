@@ -18,7 +18,7 @@ tracks = last.fetch_tracks()
 if len(sys.argv) < 2:
 
     for track in enumerate(tracks):
-        print("[{}] {}".format(track[1].srl, track[1].name))
+        print("[{}] {}".format(track[1].srl, track[1].name.replace(u'\u2013', '-')))
 else:
     index = int(sys.argv[1]) - 1
 
@@ -31,7 +31,7 @@ else:
     tracks[index].gen_url()
     tracks[index].gen_lyrics()
     print("[{}] {}: {}".format(tracks[index].srl,
-                               tracks[index].name,
+                               tracks[index].name.replace(u'\u2013', '-'),
                                tracks[index].url))
     print("--------")
     print(tracks[index].lyrics)
