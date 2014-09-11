@@ -15,6 +15,7 @@ To print the URL of the track at the serial number and open it in the browser
 TODO
 ----
 
+* Mechanism to download videos
 * Add more music sources
 * Add more video sources
 * Algorithm to select results
