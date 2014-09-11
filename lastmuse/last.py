@@ -20,7 +20,7 @@ class Track(object):
         self._qs = _prepare_qs(self.name)
         self._html = None
 
-    def gen_url(self, force=False):
+    def gen_url(self, hd=True, force=False):
 
         if self.url is not None:
             if not force:
@@ -34,7 +34,6 @@ class Track(object):
         search_req = requests.get("http://vimeo.com/search?q=" + self._qs,
                                   headers=head)
 
-        print(search_req.url)
         res_tree = html.fromstring(search_req.text)
         xpath = ("/html/body/div[1]/div[2]/div[2]/div/div[1]/div[1]/"
                  "div[3]/ol")
@@ -60,10 +59,13 @@ class Track(object):
         vid_url = vid_tree.xpath(vid_xpath)[0]
         json_r = requests.get(vid_url, headers=head)
         j = json_r.json()
-
-        try:
-            raw_vid = j['request']['files']['h264']['hd']['url']
-        except KeyError:
+        
+        if hd:
+            try:
+                raw_vid = j['request']['files']['h264']['hd']['url']
+            except KeyError:
+                raw_vid = j['request']['files']['h264']['sd']['url']
+        else:
             raw_vid = j['request']['files']['h264']['sd']['url']
 
         self.url = raw_vid

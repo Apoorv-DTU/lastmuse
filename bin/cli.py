@@ -10,8 +10,6 @@ script_dir = os.getcwd()
 script_dir = script_dir.replace('/bin', '')
 sys.path.append(script_dir)
 
-import webbrowser
-
 from lastmuse import last
 tracks = last.fetch_tracks()
 
@@ -28,11 +26,22 @@ else:
     elif index > 19:
         index = 19
 
-    tracks[index].gen_url()
+    if len(sys.argv) > 3 and sys.argv[3] is "sd":
+        sd = False
+    else:
+        sd = True
+
+    tracks[index].gen_url(hd=not sd)
     tracks[index].gen_lyrics()
     print("[{}] {}: {}".format(tracks[index].srl,
                                tracks[index].name.replace(u'\u2013', '-'),
                                tracks[index].url))
     print("--------")
     print(tracks[index].lyrics)
-    webbrowser.open(tracks[index].url)
+
+    # Open in VLC if installed otherwise in the browser
+    if os.path.isfile("/usr/bin/vlc" ):
+        os.system("vlc " + tracks[index].url)
+    else:
+        import webbrowser
+        webbrowser.open(tracks[index].url)
