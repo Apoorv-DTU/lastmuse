@@ -14,9 +14,12 @@ To print the URL of the track at the serial number and open it in the browser
 
 TODO
 ----
-Most important thing first
 
-* A GUI frontend
+* Add more music sources
+* Add more video sources
+* Algorithm to select results
+* Personal music recommendations
 * Write Tests
+* A GUI frontend
 * Reduce Dependencies
 * Create Website (GH page preferably)
