@@ -34,6 +34,7 @@ class Track(object):
         search_req = requests.get("http://vimeo.com/search?q=" + self._qs,
                                   headers=head)
 
+        print(search_req.url)
         res_tree = html.fromstring(search_req.text)
         xpath = ("/html/body/div[1]/div[2]/div[2]/div/div[1]/div[1]/"
                  "div[3]/ol")
@@ -161,8 +162,12 @@ def _prepare_qs(string):
     url = string.replace(' \u2013 ', ' ')
     url = url.replace('+', '%2B')
     url = url.replace('?', '%3F')
-    url = url.replace(' ', '+')
-    url = url.replace('!', '')
+    url = url.replace(' ', '+') 
+    
+    symbols = "!@#$%^&*"
+    for symbol in symbols:
+        url = url.replace(symbol, '')
+    
     url = url.lower()
     url = url.split('(')[0]
     return url
