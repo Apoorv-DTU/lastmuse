@@ -26,7 +26,7 @@ else:
     elif index > 19:
         index = 19
 
-    if len(sys.argv) > 3 and sys.argv[3] is "sd":
+    if len(sys.argv) > 3 and sys.argv[3] is "--sd":
         sd = False
     else:
         sd = True

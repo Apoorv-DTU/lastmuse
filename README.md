@@ -7,10 +7,12 @@ Usage
 -----
 
 `./bin/cli.py`
+
 To print the list of top tracks
 
-`./bin/cli.py <srl no.>`
-To print the URL of the track at the serial number and open it in the browser
+`./bin/cli.py [srl no.] [--sd]`
+
+Display the lyrics and play the video in VLC (or webbrowser if VLC is not available). Plays in hd unless specified
 
 TODO
 ----
