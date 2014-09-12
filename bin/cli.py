@@ -41,7 +41,7 @@ else:
 
     # Open in VLC if installed otherwise in the browser
     if os.path.isfile("/usr/bin/vlc" ):
-        os.system("vlc " + tracks[index].url)
+        os.system("vlc -q " + tracks[index].url)
     else:
         import webbrowser
         webbrowser.open(tracks[index].url)
