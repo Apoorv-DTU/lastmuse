@@ -59,7 +59,7 @@ class Track(object):
         vid_url = vid_tree.xpath(vid_xpath)[0]
         json_r = requests.get(vid_url, headers=head)
         j = json_r.json()
-        
+
         if hd:
             try:
                 raw_vid = j['request']['files']['h264']['hd']['url']
@@ -164,15 +164,16 @@ def _prepare_qs(string):
     url = string.replace(' \u2013 ', ' ')
     url = url.replace('+', '%2B')
     url = url.replace('?', '%3F')
-    url = url.replace(' ', '+') 
-    
+    url = url.replace(' ', '+')
+
     symbols = "!@#$%^&*"
     for symbol in symbols:
         url = url.replace(symbol, '')
-    
+
     url = url.lower()
     url = url.split('(')[0]
     return url
+
 
 def _select(main, opt1, opt2):
 
