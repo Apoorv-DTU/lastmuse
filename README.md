@@ -25,4 +25,4 @@ TODO
 * Write Tests
 * A GUI frontend
 * Reduce Dependencies
-* Create Website (GH page preferably)
+* Create a GH page
