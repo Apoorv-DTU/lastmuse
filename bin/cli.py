@@ -16,7 +16,7 @@ import subprocess
 def run_vlc_unix(file):
 
     if os.path.isfile('/usr/bin/vlc'):
-        subprocess.call('vlc', '-q', file)
+        subprocess.call(['vlc', '-q', file])
         return True
 
     else:
@@ -76,9 +76,8 @@ else:
 
     tracks[index].gen_url(hd=not sd)
     tracks[index].gen_lyrics()
-    print("[{}] {}: {}".format(tracks[index].srl,
-                               tracks[index].name.replace(u'\u2013', '-'),
-                               tracks[index].url))
+    print("[{}] {}".format(tracks[index].srl,
+                           tracks[index].name.replace(u'\u2013', '-')))
     print("--------")
     print(tracks[index].lyrics)
 

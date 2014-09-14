@@ -15,20 +15,15 @@ class Track(object):
         self.name = name
         self.url = None
         self.image = None
-        self.lyrics = None
+        self.lyrics = ""
 
-        self._qs = _prepare_qs(self.name)
+        self._qs = _prepare_qs(self.name, ' ', '+')
         self._html = None
 
     def gen_url(self, hd=True, force=False):
 
-        if self.url is not None:
-            if not force:
-                return
-            else:
-                pass
-        else:
-            pass
+        if not _validate(self.url, force):
+            return
 
         head = _gen_headers()
         search_req = requests.get("http://vimeo.com/search?q=" + self._qs,
@@ -72,13 +67,8 @@ class Track(object):
 
     def gen_image(self, force=False):
 
-        if self.image is not None:
-            if not force:
-                return
-            else:
-                pass
-        else:
-            pass
+        if not _validate(self.image, force):
+            return
 
         if srl is 1:
             img_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div"
@@ -93,33 +83,28 @@ class Track(object):
 
     def gen_lyrics(self, force=False):
 
-        if self.lyrics is not None:
-            if not force:
-                return
-            else:
-                pass
-        else:
-            pass
+        if not _validate(self.lyrics, force):
+            return
 
-        url = self.name.split(' \u2013 ')
-        url = '/'.join(url)
-        url = url.replace(' ', '')
-        url = url.replace('&', '')
-        url = url.replace('?', '')
-        url = url.replace('!', '')
-        url = url.lower()
-        if "(" in url:
-            url = url.split('(')[0]
+        url = _prepare_qs(self.name, '/', '')
+        url = url.split('(')[0]
 
         lyr_r = requests.get("http://www.azlyrics.com/lyrics/" + url + ".html")
         lyr_tree = html.fromstring(lyr_r.text)
         lyrics_list = lyr_tree.xpath("/html/body/div[2]/div[3]/text()")
 
-        lyrics = ""
-        for clause in lyrics_list:
-            lyrics += clause
+        self.lyrics = ''.join(lyrics_list)
 
-        self.lyrics = lyrics
+
+def _validate(attrib, is_forced):
+
+    if attrib:
+        if not is_forced:
+            return False
+        else:
+            return True
+    else:
+        return True
 
 
 def _gen_headers():
@@ -144,7 +129,7 @@ def _gen_headers():
 
 def fetch_tracks():
     url = "http://www.last.fm/charts/tracks/top/place/all"
-    fm_r = requests.get(url)
+    fm_r = requests.get(url, headers=_gen_headers())
     fm_tree = html.fromstring(fm_r.text)
 
     tracklist = [Track(1, fm_tree.xpath("/html/body/div[1]/div/div[6]/div[1]/"
@@ -160,14 +145,14 @@ def fetch_tracks():
     return tracklist
 
 
-def _prepare_qs(string):
-    url = string.replace(' \u2013 ', ' ')
+def _prepare_qs(string, uni, space):
+
+    url = string.replace(' \u2013 ', uni)
     url = url.replace('+', '%2B')
     url = url.replace('?', '%3F')
-    url = url.replace(' ', '+')
+    url = url.replace(' ', space)
 
-    symbols = "!@#$%^&*"
-    for symbol in symbols:
+    for symbol in "!@#$%^&*":
         url = url.replace(symbol, '')
 
     url = url.lower()
