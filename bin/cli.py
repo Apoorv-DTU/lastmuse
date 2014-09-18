@@ -69,10 +69,10 @@ else:
     elif index > 19:
         index = 19
 
-    if len(sys.argv) > 3 and sys.argv[3] is "--sd":
-        sd = False
-    else:
+    if len(sys.argv) > 2 and sys.argv[2] == "--sd":
         sd = True
+    else:
+        sd = False
 
     tracks[index].gen_url(hd=not sd)
     tracks[index].gen_lyrics()
