@@ -26,20 +26,30 @@ def _keywords_test(keywords, options, original):
     
     names = list(options)
     lines = _get_lines(keywords)
-    
+    _discard = []
+
     for name in names:
         if original.lower() not in name.lower():
-            names.remove(name)
+            _discard.append(name)
 
+    for waste in _discard:
+        names.remove(waste)
+
+    new_names = list(names)
     for line in lines:
 
         if line[0] == '+':
-            names = _apply_positive(line[1:], names)
+            new_names = _apply_positive(line[1:], names)
+
         elif line[0] == '-':
-            names = _apply_negative(line[1:], names)
-        
-        if len(names) == 1:
+            new_names = _apply_negative(line[1:], names)
+
+        if len(new_names) == 1:
+            return new_names[0]
+        elif len(new_names) < 1:
             return names[0]
+        else:
+            names = new_names
 
     return names[0]
 
@@ -56,11 +66,17 @@ def _get_lines(file_):
 def _apply_positive(word, opts):
     
     names = list(opts)
+    _discard = []
+
     for name in names:
         if word.lower() not in name.lower():
-            names.remove(name)
+            _discard.append(name)
+
+    for waste in _discard:
+        names.remove(waste)
 
     return names
+
 def _apply_negative(word, opts):
 
     names = list(opts)

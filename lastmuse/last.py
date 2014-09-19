@@ -26,7 +26,8 @@ class Track(object):
             return
 
         head = _gen_headers()
-        search_req = requests.get("http://vimeo.com/search?q=" + self._qs,
+        search_req = requests.get("http://vimeo.com/search?q=" + 
+                                  self._qs,
                                   headers=head)
 
         res_tree = html.fromstring(search_req.text)
@@ -87,9 +88,10 @@ class Track(object):
 
         url = _prepare_qs(self.name, '/', '')
         url = url.split('(')[0]
-
+        
         lyr_r = requests.get("http://www.azlyrics.com/lyrics/" + url + ".html")
-        lyr_tree = html.fromstring(lyr_r.text)
+        lyr_html = lyr_r.text.replace('<i>', '').replace('</i>', '')
+        lyr_tree = html.fromstring(lyr_html)
         lyrics_list = lyr_tree.xpath("/html/body/div[2]/div[3]/text()")
 
         self.lyrics = ''.join(lyrics_list)
@@ -151,6 +153,8 @@ def _prepare_qs(string, uni, space):
     url = url.replace('+', '%2B')
     url = url.replace('?', '%3F')
     url = url.replace(' ', space)
+    url = url.replace('\'', '')
+    url = url.replace('"', '')
 
     for symbol in "!@#$%^&*":
         url = url.replace(symbol, '')

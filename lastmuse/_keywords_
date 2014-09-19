@@ -2,11 +2,13 @@
 
 -mix
 -dj
++official
++video
++audio
 -cover
 -vs
 -mtv
 -live
-+official
-+video
 -tour
 -lyric
+-live
