@@ -20,7 +20,6 @@ TODO
 * Mechanism to download videos
 * Add more music sources
 * Add more video sources
-* Algorithm to select results
 * Personal music recommendations
 * Write Tests
 * A GUI frontend
