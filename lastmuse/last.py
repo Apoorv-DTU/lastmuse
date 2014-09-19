@@ -6,7 +6,7 @@ from random import random
 
 import requests
 from lxml import html
-
+from lastmuse.selector import *
 
 class Track(object):
 
@@ -33,15 +33,14 @@ class Track(object):
         xpath = ("/html/body/div[1]/div[2]/div[2]/div/div[1]/div[1]/"
                  "div[3]/ol")
 
-        t1 = res_tree.xpath(xpath + "/li[1]/a/@title")[0]
-        t2 = res_tree.xpath(xpath + "/li[2]/a/@title")[0]
+        results = []
+        for i in range(5):
+            title = res_tree.xpath(xpath + "/li[" + str(i+1) + "]/a/@title")[0]
+            results.append(title)
 
-        result = _select(self.name.split('(')[0], t1, t2)
-
-        if result is 1:
-            xpath += "/li[1]/a/@href"
-        else:
-            xpath += "/li[2]/a/@href"
+        result = select(self.name, results)
+        index = results.index(result)
+        xpath += "/li[" + str(index+1) + "]/a/@href"
 
         url = "http://vimeo.com" + res_tree.xpath(xpath)[0]
 
@@ -134,20 +133,21 @@ def fetch_tracks():
 
     tracklist = [Track(1, fm_tree.xpath("/html/body/div[1]/div/div[6]/div[1]/"
                                         "div[1]/div/ol/li[1]/div/div/a[1]/h4/"
-                                        "span[2]/text()")[0])]
+                                        "span[2]/text()")[0].replace('\u2013', '-'))]
 
     for srl in range(2, 21):
         track_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div[1]/div/ol/"
                        "li[" + str(srl) + "]/div/div/a/h4/span[2]/text()")
 
         song = fm_tree.xpath(track_xpath)[0]
+        song = song.replace("\u2013", '-')
         tracklist.append(Track(srl, song))
     return tracklist
 
 
 def _prepare_qs(string, uni, space):
 
-    url = string.replace(' \u2013 ', uni)
+    url = string.replace(' - ', uni)
     url = url.replace('+', '%2B')
     url = url.replace('?', '%3F')
     url = url.replace(' ', space)
@@ -158,18 +158,3 @@ def _prepare_qs(string, uni, space):
     url = url.lower()
     url = url.split('(')[0]
     return url
-
-
-def _select(main, opt1, opt2):
-
-    l_main = len(main)
-    l_opt1 = len(opt1)
-    l_opt2 = len(opt2)
-
-    l_opt1 -= l_main
-    l_opt2 -= l_main
-
-    if abs(l_opt2) >= abs(l_opt1):
-        return 1
-    else:
-        return 2
