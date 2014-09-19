@@ -1,9 +1,12 @@
 # The keywords used for selecting tracks are taken from this file
 
-+official
-+video
 -mix
 -dj
 -cover
--lyric
+-vs
 -mtv
+-live
++official
++video
+-tour
+-lyric
