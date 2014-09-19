@@ -149,7 +149,7 @@ def _prepare_qs(string, uni, space):
 
     url = string.replace(' - ', uni)
     url = url.replace('+', '%2B')
-    url = url.replace('?', '%3F')
+    url = url.replace('?', '')
     url = url.replace(' ', space)
 
     for symbol in "!@#$%^&*":
