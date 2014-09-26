@@ -1,15 +1,17 @@
-# This module contains functions to help with video selection     
+# This module contains functions to help with video selection
+
 
 def select(original, names):
     try:
         keywords = open("lastmuse/_keywords_", "r")
-    except IOError: # If the file does not exist
+    except IOError:  # If the file does not exist
         return _length_test(original, names)
 
     return _keywords_test(keywords, names, original)
 
+
 def _length_test(orig, options):
-    
+
     l_orig = len(orig)
     options_length = []
 
@@ -19,11 +21,12 @@ def _length_test(orig, options):
     for i in range(len(options_length)):
         options_length[i] -= l_orig
         options_length[i] = abs(options_length[i])
-        
+
     return sorted(options_length)[0]
 
+
 def _keywords_test(keywords, options, original):
-    
+
     names = list(options)
     lines = _get_lines(keywords)
     _discard = []
@@ -31,6 +34,12 @@ def _keywords_test(keywords, options, original):
     for name in names:
         if original.lower() not in name.lower():
             _discard.append(name)
+
+    if len(_discard) == len(names):
+        _discard = []
+        for name in names:
+            if original.split(' -')[0].lower() not in name.lower():
+                _discard.append(name)
 
     for waste in _discard:
         names.remove(waste)
@@ -53,6 +62,7 @@ def _keywords_test(keywords, options, original):
 
     return names[0]
 
+
 def _get_lines(file_):
 
     raw = file_.read()
@@ -60,11 +70,12 @@ def _get_lines(file_):
 
     for i in range(lines.count('')):
         lines.remove('')
-    
+
     return lines
 
+
 def _apply_positive(word, opts):
-    
+
     names = list(opts)
     _discard = []
 
@@ -76,6 +87,7 @@ def _apply_positive(word, opts):
         names.remove(waste)
 
     return names
+
 
 def _apply_negative(word, opts):
 

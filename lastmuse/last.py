@@ -6,18 +6,21 @@ from random import random
 
 import requests
 from lxml import html
-from lastmuse.selector import *
+from lastmuse import selector
+
 
 class Track(object):
 
-    def __init__(self, srl, name):
+    def __init__(self, srl, name, artist):
         self.srl = srl
         self.name = name
+        self.artist = artist
         self.url = None
         self.image = None
         self.lyrics = ""
 
-        self._qs = _prepare_qs(self.name, ' ', '+')
+
+        self._qs = _prepare_qs(self.name, self.artist, ' ', '+')
         self._html = None
 
     def gen_url(self, hd=True, force=False):
@@ -26,7 +29,7 @@ class Track(object):
             return
 
         head = _gen_headers()
-        search_req = requests.get("http://vimeo.com/search?q=" + 
+        search_req = requests.get("http://vimeo.com/search?q=" +
                                   self._qs,
                                   headers=head)
 
@@ -39,7 +42,7 @@ class Track(object):
             title = res_tree.xpath(xpath + "/li[" + str(i+1) + "]/a/@title")[0]
             results.append(title)
 
-        result = select(self.name, results)
+        result = selector.select(self.name, results)
         index = results.index(result)
         xpath += "/li[" + str(index+1) + "]/a/@href"
 
@@ -70,12 +73,12 @@ class Track(object):
         if not _validate(self.image, force):
             return
 
-        if srl is 1:
+        if self.srl is 1:
             img_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div"
                          "[1]/div/ol/li[1]/div/div/a[1]/div/div/img/@src")
         else:
             img_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div[1]"
-                         "/div/ol/li[" + srl + "]/div/div/a/img/@src")
+                         "/div/ol/li[" + self.srl + "]/div/div/a/img/@src")
 
         img_url = self._html.xpath(img_xpath)
         img_request = requests.get(img_url)
@@ -86,9 +89,9 @@ class Track(object):
         if not _validate(self.lyrics, force):
             return
 
-        url = _prepare_qs(self.name, '/', '')
+        url = _prepare_qs(self.name, self.artist, '/', '')
         url = url.split('(')[0]
-        
+
         lyr_r = requests.get("http://www.azlyrics.com/lyrics/" + url + ".html")
         lyr_html = lyr_r.text.replace('<i>', '').replace('</i>', '')
         lyr_tree = html.fromstring(lyr_html)
@@ -133,28 +136,33 @@ def fetch_tracks():
     fm_r = requests.get(url, headers=_gen_headers())
     fm_tree = html.fromstring(fm_r.text)
 
-    tracklist = [Track(1, fm_tree.xpath("/html/body/div[1]/div/div[6]/div[1]/"
-                                        "div[1]/div/ol/li[1]/div/div/a[1]/h4/"
-                                        "span[2]/text()")[0].replace('\u2013', '-'))]
+    title = fm_tree.xpath("/html/body/div[1]/div/div[6]/div[1]/"
+                          "div[1]/div/ol/li[1]/div/div/a[1]/h4/"
+                          "span[2]/text()")[0]
+    track_name = title.split(' \u2013 ')
+    
+    tracklist = [Track(1, track_name[1], track_name[0])]
 
     for srl in range(2, 21):
         track_xpath = ("/html/body/div[1]/div/div[6]/div[1]/div[1]/div/ol/"
                        "li[" + str(srl) + "]/div/div/a/h4/span[2]/text()")
 
         song = fm_tree.xpath(track_xpath)[0]
-        song = song.replace("\u2013", '-')
-        tracklist.append(Track(srl, song))
+        song_info = song.split(' \u2013 ')
+        tracklist.append(Track(srl, song_info[1], song_info[0]))
     return tracklist
 
 
-def _prepare_qs(string, uni, space):
+def _prepare_qs(name, artist, junction, space):
 
-    url = string.replace(' - ', uni)
+    artist_arg = artist.replace('-', '')
+    name_arg = name.replace('-', '')
+    url = junction.join([artist_arg, name_arg])
     url = url.replace('+', '%2B')
     url = url.replace('?', '')
     url = url.replace(' ', space)
     url = url.replace('\'', '')
-    url = url.replace('"', '')
+    url = url.replace('\"', '')
 
     for symbol in "!@#$%^&*":
         url = url.replace(symbol, '')

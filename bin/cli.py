@@ -13,28 +13,28 @@ sys.path.append(script_dir)
 import subprocess
 
 
-def run_vlc_unix(file):
+def run_vlc_unix(file_):
 
     if os.path.isfile('/usr/bin/vlc'):
-        subprocess.call(['vlc', '-q', file])
+        subprocess.call(['vlc', '-q', file_])
         return True
 
     else:
         return False
 
 
-def run_vlc_win(file):
+def run_vlc_win(file_):
 
     path_32 = r"C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
     path_64 = r"C:\\Program Files (x86)\\VideoLAN\\VLC\\vlc.exe"
 
     import subprocess
     if os.path.isfile(path_32):
-        subprocess.call([path_32, file])
+        subprocess.call([path_32, file_])
         return True
 
     elif os.path.isfile(path_64):
-        subprocess.call([path_64, file])
+        subprocess.call([path_64, file_])
         return True
 
     else:
@@ -58,8 +58,9 @@ tracks = last.fetch_tracks()
 if len(sys.argv) < 2:
 
     for track in enumerate(tracks):
-        print("[{}] {}".format(track[1].srl,
-                               track[1].name.replace(u'\u2013', '-')))
+        print("[{}] {} - {}".format(track[1].srl,
+                               track[1].artist,
+                               track[1].name))
 else:
     index = int(sys.argv[1]) - 1
 
@@ -76,8 +77,9 @@ else:
 
     tracks[index].gen_url(hd=not sd)
     tracks[index].gen_lyrics()
-    print("[{}] {}".format(tracks[index].srl,
-                           tracks[index].name.replace(u'\u2013', '-')))
+    print("[{}] {} - {}".format(tracks[index].srl,
+                           tracks[index].artist,
+                           tracks[index].name))
     print("--------")
     print(tracks[index].lyrics)
 
