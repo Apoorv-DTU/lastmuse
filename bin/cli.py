@@ -81,8 +81,12 @@ else:
                            tracks[index].artist,
                            tracks[index].name))
     print("--------")
-    print(tracks[index].lyrics)
-
+    lyrics = tracks[index].lyrics
+    try:
+        print(lyrics)
+    except UnicodeEncodeError:
+        ascii_lyrics = ''.join([i if ord(i) < 128 else '' for i in lyrics])
+        print(ascii_lyrics)
     # Open in VLC if installed otherwise in the browser
     if open_in_vlc(tracks[index].url):
         pass
