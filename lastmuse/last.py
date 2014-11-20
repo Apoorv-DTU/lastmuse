@@ -1,9 +1,8 @@
-#!/usr/bin/python3
-
 from __future__ import print_function
 from __future__ import unicode_literals
 from random import random
 
+import sys
 import requests
 from lxml import html
 from lastmuse import selector
@@ -39,8 +38,15 @@ class Track(object):
 
         results = []
         for i in range(5):
-            title = res_tree.xpath(xpath + "/li[" + str(i+1) + "]/a/@title")[0]
-            results.append(title)
+            try:
+                title = res_tree.xpath(xpath + "/li[" + str(i+1) + "]/a/@title")[0]
+                results.append(title)
+
+            except IndexError:
+                print("Less search results")
+                with open('search.html', 'w+') as f:
+                    f.write(search_req.text)
+                sys.exit(-1)
 
         result = selector.select(self.name, results)
         index = results.index(result)
@@ -136,9 +142,23 @@ def fetch_tracks():
     fm_r = requests.get(url, headers=_gen_headers())
     fm_tree = html.fromstring(fm_r.text)
 
-    title = fm_tree.xpath("/html/body/div[1]/div/div[6]/div[1]/"
-                          "div[1]/div/ol/li[1]/div/div/a[1]/h4/"
-                          "span[2]/text()")[0]
+    try:
+        title = fm_tree.xpath("/html/body/div[1]/div/div[6]/div[1]/"
+                              "div[1]/div/ol/li[1]/div/div/a[1]/h4/"
+                              "span[2]/text()")[0]
+    
+    except IndexError:
+        err_xpath = ["/html/body/div[1]/div/div[6]/div[1]/div[1]/div" 
+                    "/div/h4/text()"][0]
+
+        if "Sorry" in fm_tree.xpath(err_xpath)[0]:
+            return None
+    except:
+        with open("tracks.html", 'w+') as f:
+            f.write(fm_r.text)
+        print('check file for errors!')
+        sys.exit(-1)
+
     track_name = title.split(' \u2013 ')
     
     tracklist = [Track(1, track_name[1], track_name[0])]
@@ -169,4 +189,5 @@ def _prepare_qs(name, artist, junction, space):
 
     url = url.lower()
     url = url.split('(')[0]
+    url = url.split('[')[0]
     return url

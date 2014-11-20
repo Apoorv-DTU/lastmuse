@@ -6,8 +6,8 @@ from __future__ import unicode_literals
 # Set the directory to the parent
 import os
 import sys
-script_dir = os.getcwd()
-script_dir = script_dir.replace('/bin', '')
+script_dir = os.path.realpath(__file__)
+script_dir = script_dir.replace('/bin/cli.py', '')
 sys.path.append(script_dir)
 
 import subprocess
@@ -55,41 +55,54 @@ def open_in_vlc(file):
 from lastmuse import last
 tracks = last.fetch_tracks()
 
-if len(sys.argv) < 2:
+try:
+    if not tracks:
+        print("FIXME: Tracks currently unavailable")
+        sys.exit(-1)
 
-    for track in enumerate(tracks):
-        print("[{}] {} - {}".format(track[1].srl,
-                               track[1].artist,
-                               track[1].name))
-else:
-    index = int(sys.argv[1]) - 1
+    if len(sys.argv) < 2:
 
-    # Check if the argument is in bounds
-    if index < 0:
-        index = 1
-    elif index > 19:
-        index = 19
-
-    if len(sys.argv) > 2 and sys.argv[2] == "--sd":
-        sd = True
+        for track in enumerate(tracks):
+            print("[{:02d}] {} - {}".format(track[1].srl,
+                                   track[1].artist,
+                                   track[1].name))
     else:
-        sd = False
+        try:
+            index = int(sys.argv[1]) - 1
+        except ValueError:
+            if sys.argv[1] == '--random' or sys.argv[1] == '-r':
+                from random import randint
+                index = randint(1, 20)
 
-    tracks[index].gen_url(hd=not sd)
-    tracks[index].gen_lyrics()
-    print("[{}] {} - {}".format(tracks[index].srl,
-                           tracks[index].artist,
-                           tracks[index].name))
-    print("--------")
-    lyrics = tracks[index].lyrics
-    try:
-        print(lyrics)
-    except UnicodeEncodeError:
-        ascii_lyrics = ''.join([i if ord(i) < 128 else '' for i in lyrics])
-        print(ascii_lyrics)
-    # Open in VLC if installed otherwise in the browser
-    if open_in_vlc(tracks[index].url):
-        pass
-    else:
-        import webbrowser
-        webbrowser.open(tracks[index].url)
+        # Check if the argument is in bounds
+        if index < 0:
+            index = 1
+        elif index > 19:
+            index = 19
+
+        if len(sys.argv) > 2 and sys.argv[2] == "--sd":
+            sd = True
+        else:
+            sd = False
+
+        tracks[index].gen_url(hd=not sd)
+        tracks[index].gen_lyrics()
+        print("[{:02d}] {} - {}".format(tracks[index].srl,
+                               tracks[index].artist,
+                               tracks[index].name))
+        print("--------")
+        lyrics = tracks[index].lyrics
+        try:
+            print(lyrics)
+        except UnicodeEncodeError:
+            ascii_lyrics = ''.join([i if ord(i) < 128 else '' for i in lyrics])
+            print(ascii_lyrics)
+        # Open in VLC if installed otherwise in the browser
+        if open_in_vlc(tracks[index].url):
+            pass
+        else:
+            import webbrowser
+            webbrowser.open(tracks[index].url)
+
+except KeyboardInterrupt:
+    print("GoodBye!")
